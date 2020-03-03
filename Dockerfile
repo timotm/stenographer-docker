@@ -13,14 +13,15 @@ RUN mkdir -p ${BINDIR} && \
     ( ./install.sh || true )
 
 FROM ubuntu:18.04
+COPY --from=build /opt/stenographer/bin /opt/stenographer/bin
+COPY --from=build /etc/stenographer /etc/stenographer
 RUN adduser --system --no-create-home stenographer && \
     addgroup --system stenographer && \
     mkdir -p /var/lib/stenographer && \
     chown stenographer:stenographer /var/lib/stenographer && \
     apt update && \
     apt install -y --no-install-recommends libleveldb1v5 libsnappy1v5 libaio1 \
-    jq tcpdump
-COPY --from=build /opt/stenographer/bin /opt/stenographer/bin
-COPY --from=build /etc/stenographer /etc/stenographer
+    jq tcpdump libcap2-bin && \
+    setcap 'CAP_NET_RAW+ep CAP_NET_ADMIN+ep CAP_IPC_LOCK+ep' /opt/stenographer/bin/stenotype
 
 ENTRYPOINT [ "/opt/stenographer/bin/stenographer", "-syslog=false" ]

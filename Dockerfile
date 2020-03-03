@@ -18,9 +18,9 @@ RUN adduser --system --no-create-home stenographer && \
     mkdir -p /var/lib/stenographer && \
     chown stenographer:stenographer /var/lib/stenographer && \
     apt update && \
-    apt install -y --no-install-recommends libleveldb1v5 libsnappy1v5 libaio1
+    apt install -y --no-install-recommends libleveldb1v5 libsnappy1v5 libaio1 \
+    jq tcpdump
 COPY --from=build /opt/stenographer/bin /opt/stenographer/bin
 COPY --from=build /etc/stenographer /etc/stenographer
 
-USER stenographer
 ENTRYPOINT [ "/opt/stenographer/bin/stenographer", "-syslog=false" ]

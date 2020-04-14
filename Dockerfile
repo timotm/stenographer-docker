@@ -15,6 +15,8 @@ RUN mkdir -p ${BINDIR} && \
 FROM ubuntu:18.04
 COPY --from=build /opt/stenographer/bin /opt/stenographer/bin
 COPY --from=build /etc/stenographer /etc/stenographer
+COPY --from=build /stenographer/src/github.com/google/stenographer/stenotype/compile_bpf.sh /opt/stenographer/bin/
+
 RUN adduser --system --no-create-home stenographer && \
     addgroup --system stenographer && \
     mkdir -p /var/lib/stenographer && \

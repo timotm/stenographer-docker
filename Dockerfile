@@ -16,6 +16,7 @@ FROM ubuntu:18.04
 COPY --from=build /opt/stenographer/bin /opt/stenographer/bin
 COPY --from=build /etc/stenographer /etc/stenographer
 COPY --from=build /stenographer/src/github.com/google/stenographer/stenotype/compile_bpf.sh /opt/stenographer/bin/
+COPY entrypoint.sh /opt/stenographer/bin/
 
 RUN adduser --system --no-create-home stenographer && \
     addgroup --system stenographer && \
@@ -24,6 +25,7 @@ RUN adduser --system --no-create-home stenographer && \
     apt update && \
     apt install -y --no-install-recommends libleveldb1v5 libsnappy1v5 libaio1 \
     jq tcpdump libcap2-bin curl netcat-openbsd sudo && \
-    setcap 'CAP_NET_RAW+ep CAP_NET_ADMIN+ep CAP_IPC_LOCK+ep' /opt/stenographer/bin/stenotype
+    setcap 'CAP_NET_RAW+ep CAP_NET_ADMIN+ep CAP_IPC_LOCK+ep' /opt/stenographer/bin/stenotype && \
+    rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT [ "/opt/stenographer/bin/stenographer", "-syslog=false" ]
+ENTRYPOINT [ "/opt/stenographer/bin/entrypoint.sh" ]

@@ -10,7 +10,8 @@ RUN mkdir -p ${BINDIR} && \
     cd /stenographer/src/github.com/google/stenographer && \
     sed -i -e 's|/path/to|/var/lib/stenographer|' \
     -e 's|/usr/bin/|/opt/stenographer/bin/|' configs/steno.conf && \
-    ( ./install.sh || true )
+    ( ./install.sh || true ) && \
+    sed -i -e 's/curl /curl -k /' /opt/stenographer/bin/stenocurl
 
 FROM ubuntu:18.04
 COPY --from=build /opt/stenographer/bin /opt/stenographer/bin

@@ -6,16 +6,17 @@ FILTER=
 DISKFREE=10
 INDEXBASE=
 PACKETSBASE=
+HTTP_HOST=127.0.0.1
 
 set -euo pipefail
 
 usage() {
-    echo "Usage: [--threads 1] [--filter <bpf>] [--diskfreee 10] --interface <dev> --indexbase <dir> --packetsbase <dir>" >&2
+    echo "Usage: [--host <http_host>] [--threads 1] [--filter <bpf>] [--diskfree 10] --interface <dev> --indexbase <dir> --packetsbase <dir>" >&2
     exit 1
 }
 
 parse_opts() {
-    local -r OPTS=$(getopt --options '' --longoptions threads:,interface:,filter:,diskfree:,indexbase:,packetsbase: -n 'entrypoint' -- "$@")
+    local -r OPTS=$(getopt --options '' --longoptions host:,threads:,interface:,filter:,diskfree:,indexbase:,packetsbase: -n 'entrypoint' -- "$@")
 
     if [ $? != 0 ]; then
         echo "Failed parsing options." >&2
@@ -56,6 +57,11 @@ parse_opts() {
             shift
             shift
             ;;
+        --host)
+            HTTP_HOST="$2"
+            shift
+            shift
+            ;;
         -h | --help)
             usage
             shift
@@ -76,6 +82,7 @@ create_config() {
     local -r INDEXBASE="$4"
     local -r DISKFREE="$5"
     local -r FILTER="$6"
+    local -r HTTP_HOST="$7"
     local COMPILED_FILTER=
 
     if [ -n "${FILTER}" ]; then
@@ -93,7 +100,7 @@ create_config() {
             DiskFreePercentage: $diskfree}),
     StenotypePath: "/opt/stenographer/bin/stenotype",
     Interface: $interface,
-    Host: "127.0.0.1",
+    Host: $http_host,
     Port: 1234,
     Flags: ([ "--seccomp=none", "--uid=root", "--gid=root" ] + $extraflags),
     CertPath: "/etc/stenographer/certs"
@@ -108,6 +115,7 @@ EOF
 
     jq --null-input \
         --arg interface "${INTERFACE}" \
+        --arg http_host "${HTTP_HOST}" \
         --argjson threads "${THREADS}" \
         --arg packetsbase "${PACKETSBASE}" \
         --arg indexbase "${INDEXBASE}" \
@@ -119,9 +127,9 @@ EOF
 
 parse_opts "$@"
 
-if [ -z "${INTERFACE}" ] || [ -z "${PACKETSBASE}" ] || [ -z "${INDEXBASE}" ] || [ "${THREADS}" -le 0 ] || [ "${DISKFREE}" -le 0 ]; then
+if [ -z "${HTTP_HOST}" ] || [ -z "${INTERFACE}" ] || [ -z "${PACKETSBASE}" ] || [ -z "${INDEXBASE}" ] || [ "${THREADS}" -le 0 ] || [ "${DISKFREE}" -le 0 ]; then
     usage
 fi
 
-create_config "${INTERFACE}" "${THREADS}" "${PACKETSBASE}" "${INDEXBASE}" "${DISKFREE}" "${FILTER}" >/etc/stenographer/config
+create_config "${INTERFACE}" "${THREADS}" "${PACKETSBASE}" "${INDEXBASE}" "${DISKFREE}" "${FILTER}" "${HTTP_HOST}" >/etc/stenographer/config
 /opt/stenographer/bin/stenographer -syslog=false -config=/etc/stenographer/config

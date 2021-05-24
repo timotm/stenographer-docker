@@ -1,4 +1,6 @@
 FROM ubuntu:18.04 AS build
+COPY 99_golang_from_focal /etc/apt/preferences.d/
+COPY focal.list /etc/apt/sources.list.d/
 RUN apt update && \
     apt install -y --no-install-recommends libaio-dev libleveldb-dev libsnappy-dev \
     g++ libcap2-bin libseccomp-dev golang git ca-certificates make sudo
@@ -22,11 +24,13 @@ COPY entrypoint.sh /opt/stenographer/bin/
 RUN adduser --system --no-create-home stenographer && \
     addgroup --system stenographer && \
     mkdir -p /var/lib/stenographer && \
-    chown stenographer:stenographer /var/lib/stenographer && \
+    chown -R stenographer:stenographer /var/lib/stenographer /etc/stenographer && \
     apt update && \
     apt install -y --no-install-recommends libleveldb1v5 libsnappy1v5 libaio1 \
     jq tcpdump libcap2-bin curl netcat-openbsd sudo && \
-    setcap 'CAP_NET_RAW+ep CAP_NET_ADMIN+ep CAP_IPC_LOCK+ep' /opt/stenographer/bin/stenotype && \
+    setcap 'cap_net_raw,cap_net_admin,cap_ipc_lock+ep' /opt/stenographer/bin/stenotype && \
     rm -rf /var/lib/apt/lists/*
+
+USER stenographer
 
 ENTRYPOINT [ "/opt/stenographer/bin/entrypoint.sh" ]

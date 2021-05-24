@@ -1,0 +1,7 @@
+Package: *
+Pin: release a=focal
+Pin-Priority: 1
+
+Package: golang*
+Pin: release a=focal
+Pin-Priority: 900

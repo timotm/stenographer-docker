@@ -30,7 +30,7 @@ RUN adduser --system --no-create-home stenographer && \
     apt update && \
     apt install -y --no-install-recommends libleveldb1v5 libsnappy1v5 libaio1 \
     jq tcpdump libcap2-bin curl netcat-openbsd sudo && \
-    setcap 'cap_net_raw,cap_net_admin,cap_ipc_lock+ep' /opt/stenographer/bin/stenotype && \
+    setcap 'cap_net_raw,cap_net_admin,cap_ipc_lock,cap_setuid,cap_setgid+ep' /opt/stenographer/bin/stenotype && \
     rm -rf /var/lib/apt/lists/*
 
 USER stenographer

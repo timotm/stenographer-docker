@@ -109,7 +109,7 @@ create_config() {
     Interface: $interface,
     Host: $http_host,
     Port: $http_port,
-    Flags: ([ "--seccomp=none", "--uid=root", "--gid=root" ] + $extraflags),
+    Flags: ([ "--seccomp=none" ] + $extraflags),
     CertPath: "/etc/stenographer/certs"
 }
 EOF

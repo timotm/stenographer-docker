@@ -26,6 +26,7 @@ RUN adduser --system --no-create-home stenographer && \
     mkdir -p /var/lib/stenographer && \
     chown -R stenographer:stenographer /var/lib/stenographer /etc/stenographer && \
     chmod -R a+rwx /var/lib/stenographer /etc/stenographer && \
+    chmod a+x /opt/stenographer/bin/* && \
     apt update && \
     apt install -y --no-install-recommends libleveldb1v5 libsnappy1v5 libaio1 \
     jq tcpdump libcap2-bin curl netcat-openbsd sudo && \
